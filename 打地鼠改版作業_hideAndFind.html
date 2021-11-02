@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hide And Find</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            background: linear-gradient(rgb(255, 222, 222) 40%, rgb(88, 186, 243) 100%);
+        }
+        
+        .container {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .logo {
+            position: absolute;
+            width: 500px;
+            top: -10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .left {
+            height: 100%;
+            width: 30%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+        }
+        
+        .findOut {
+            font-size: 4rem;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: rgb(204, 0, 255);
+            text-shadow: 5px 5px 10px rgb(233, 163, 255);
+            font-weight: bolder;
+        }
+        
+        #btn-start {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            font-size: 2rem;
+            background-color: rgb(165, 11, 226);
+            color: white;
+            font-weight: bolder;
+            cursor: pointer;
+        }
+        
+        #randomimg {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 3px solid rgb(6, 33, 155);
+            box-shadow: 0 0 10px 5px rgb(43, 5, 87);
+        }
+        
+        #game {
+            height: 100%;
+            width: 40%;
+            margin: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hole {
+            width: 200px;
+            height: 200px;
+            border: 4px solid rgba(91, 4, 204, 0.3);
+        }
+        
+        #scoreboard {
+            width: 30%;
+            height: 100%;
+            text-align: center;
+            position: relative;
+        }
+        
+        .yourScore {
+            width: 500px;
+            position: absolute;
+            top: 8%;
+            right: 0%;
+            font-size: 4rem;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+            color: rgb(240, 151, 17);
+            text-shadow: 5px 5px 10px rgb(241, 192, 117);
+            font-weight: bolder;
+        }
+        
+        .scoreText {
+            font-size: 1.5rem;
+            font-family: "微軟正黑體";
+            position: absolute;
+            font-weight: bolder;
+            top: 50%;
+            right: 20%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .circle {
+            background-image: url(./img/圓形.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .square {
+            background-image: url(./img/正方形.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .triangle {
+            background-image: url(./img/三角形.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .circle-ok {
+            background-image: url(./img/圓形ok.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .square-ok {
+            background-image: url(./img/正方形ok.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        
+        .triangle-ok {
+            background-image: url(./img/三角形-ok.png);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img class="logo" src="./img/logo.png">
+
+        <div class="left">
+            <p class="findOut">FindOut</p>
+            <div id="randomimg"></div>
+            <input type="button" value="開始" id="btn-start">
+        </div>
+
+        <table id="game">
+            <tr>
+                <td class="hole" id="hole7"></td>
+                <td class="hole" id="hole8"></td>
+                <td class="hole" id="hole9"></td>
+            </tr>
+            <tr>
+                <td class="hole" id="hole4"></td>
+                <td class="hole" id="hole5"></td>
+                <td class="hole" id="hole6"></td>
+            </tr>
+            <tr>
+                <td class="hole" id="hole1"></td>
+                <td class="hole" id="hole2"></td>
+                <td class="hole" id="hole3"></td>
+            </tr>
+        </table>
+
+        <div id="scoreboard">
+            <p class="yourScore"> Your Score</p>
+            <div class="scoreText">
+                目前分數:<span id="score">0</span>分
+                <br> 剩餘時間:
+                <span id="time">0</span>秒
+                <div class="high" style="color:rgb(32, 6, 82)">
+                    <br> 最高分
+                    <br> 姓名:
+                    <span id=highName>???</span>
+                    <br> 分數:
+                    <span id=highScore>0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- sweet alert -->
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // 抓取元素
+        const btnStart = document.getElementById("btn-start");
+        const holes = document.getElementsByClassName("hole");
+        const random = document.getElementById("randomimg")
+        const scoreText = document.getElementById("score");
+        const timeText = document.getElementById("time");
+        const highNameText = document.getElementById("highName");
+        const highScoreText = document.getElementById("highScore");
+
+        // 宣告初始值(分數、時間、最高分)
+        let score = 0;
+        let countDown = 30;
+        let high = {
+            name: "???",
+            score: 0
+        }
+        let timer = 0;
+        let timer2 = 0;
+        let img = ['circle', 'square', 'triangle'];
+
+        //顯示出資料庫的最高分
+        const storage = JSON.parse(localStorage.getItem('hideAndFind'))
+            // 若資料庫有最高分將畫面中的最高分顯示
+        if (storage) {
+            high.name = storage.name;
+            high.score = storage.score
+                // 顯示至畫面上
+            highNameText.innerText = high.name;
+            highScoreText.innerText = high.score
+        }
+
+        // sweetalert顯示遊戲規則
+        Swal.fire({
+            icon: 'info',
+            title: '遊戲規則',
+            text: '點選左邊顯示的相同圖形，點錯會扣分唷！'
+        })
+
+
+        // 點下開始按鈕
+        btnStart.onclick = () => {
+            // 開始按鈕無法使用
+            btnStart.disabled = true;
+            // 分數重置
+            score = 0;
+            // 倒數計時
+            countDown = 30;
+            // 倒數計時顯示於畫面
+            timeText.innerText = countDown;
+            // 分數顯示於畫面中
+            scoreText.innerText = score;
+            // 遊戲開始的中間的圖案function(每秒變換一次)
+            timer = setInterval(game, 1000);
+            // 左邊randomimg的function開始(每三秒變換一次)
+            timer2 = setInterval(randomimg, 3000);
+            // 先呼叫game function
+            game();
+            randomimg();
+            // 遊戲結束的兩個function(三十秒後結束)
+            setTimeout(end, 30 * 1000);
+        }
+
+        // 遊戲開始
+        const game = () => {
+            // 倒數計時開始
+            // 倒數計時顯示於畫面
+            // 先顯示在減
+            timeText.innerText = countDown--;
+
+            // 移除圖片
+            for (const hole of holes) {
+                hole.classList.remove("circle");
+                hole.classList.remove("square");
+                hole.classList.remove("triangle");
+                hole.classList.remove("circle-ok");
+                hole.classList.remove("square-ok");
+                hole.classList.remove("triangle-ok");
+            }
+
+
+            // 隨機出現，最多出現4個
+            let idx;
+            let randomNum = Math.ceil(Math.random() * 4)
+            for (let i = 0; i < randomNum; i++) {
+                let randomShape = img[Math.round(Math.random() * 2)]
+                idx = holes[Math.round(Math.random() * (holes.length - 1))]
+                if (idx.classList.contains('circle') || idx.classList.contains('triangle') || idx.classList.contains('square')) {
+                    i--
+                } else {
+                    idx.classList.add(randomShape)
+                }
+            }
+        }
+
+
+        // randomimg function開始
+        let nowimg = "";
+        const randomimg = () => {
+            if (nowimg !== "") {
+                // 先移除class否則會重複加上
+                random.classList.remove(nowimg);
+            }
+            nowimg = `${img[Math.round(Math.random() * (img.length - 1))]}`;
+            random.classList.add(nowimg);
+        }
+
+
+        // 若randomimg的圖案與畫面中的隨機圖案點選正確則變成藍色並且加分
+        for (const hole of holes) {
+            hole.onclick = () => {
+                // 如果點下去的圖片等於random的圖片
+                if (hole.classList.contains(nowimg)) {
+                    // 把圖片換成藍色的
+                    hole.classList.replace(nowimg, `${nowimg}-ok`)
+                        // 加分
+                    score++
+                    // 將分數顯示於畫面上
+                    scoreText.innerText = score
+
+                    // 如果點下去的圖片不等於random的圖片，點空白不予計分
+                } else if (hole.classList.length > 1) {
+                    // 扣分
+                    score--
+                    // 將分數顯示於畫面上
+                    scoreText.innerText = score
+                }
+            }
+        }
+
+
+        // 遊戲結束
+        const end = () => {
+            clearInterval(timer);
+            clearInterval(timer2);
+            // 將所有圖片清掉
+            for (const hole of holes) {
+                hole.classList.remove("circle");
+                hole.classList.remove("square");
+                hole.classList.remove("triangle");
+                hole.classList.remove("circle-ok");
+                hole.classList.remove("square-ok");
+                hole.classList.remove("triangle-ok");
+            }
+            // 左邊圖片清掉
+            random.classList.remove(nowimg);
+            // 開始鍵重新啟用
+            btnStart.disabled = false;
+
+            // 若成績超越最高分則請玩家輸入姓名
+            if (score > high.score) {
+                let input = prompt("恭喜創最高分紀錄，請輸入姓名");
+                // 修改最高分變數資料
+                high.name = input || "無名氏";
+                high.score = score;
+                // 修改最高分顯示資料
+                highNameText.innerText = high.name;
+                highScoreText.innerText = high.score;
+                // 保存
+                localStorage.setItem('hideAndFind', JSON.stringify(high))
+            }
+
+            // 顯示分數
+            alert(`遊戲結束您的分數為${score}分`)
+        }
+
+        // 數字鍵
+        document.onkeydown = () => {
+            // 按了甚麼鍵
+            const key = event.key
+            if (!isNaN(key)) {
+                const target = document.getElementById(`hole${key}`)
+                if (target && target.classList.contains(nowimg)) {
+                    target.classList.replace(nowimg, `${nowimg}-ok`);
+                    score++;
+                    scoreText.innerText = score;
+                } else if (target.classList.length > 1) {
+                    score--;
+                    scoreText.innerText = score
+                }
+            }
+        }
+    </script>
+</body>
+
+</html>
